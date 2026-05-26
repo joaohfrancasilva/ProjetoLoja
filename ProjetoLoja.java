@@ -7,39 +7,89 @@ import java.util.HashMap;
 
 public class ProjetoLoja{
     public static ArrayList<HashMap> lista = new ArrayList<>();
- 
+
+
+    public static boolean vazio(){
+        if(lista.isEmpty()){
+            JOptionPane.showMessageDialog(null, "A lista está vazia.");
+            return true;
+        }
+        return false;
+    }
 
 
     public static void adicionar(){
         String nome = "";
-        String precoStr = "";
+        double preco = 0;
+
         try {
             nome = JOptionPane.showInputDialog(null, "Digite o nome do produto a ser adicionado: ");
             if (nome.isBlank()){
                 JOptionPane.showMessageDialog(null, "O produto precisa ter um nome.");
                 return;
             }
-            else {
-                JOptionPane.showMessageDialog(null, "Produto adicionado com sucesso!");
-            }
         }
+
         catch (NullPointerException e){
-            JOptionPane.showMessageDialog(null, "O produto precisa ter um nome.");
             return;
         }
+
         try{
-            precoStr = JOptionPane.showInputDialog(null, "Digite o preço do produto: ");
-            double preco = Double.parseDouble(precoStr);
-        } catch (NumberFormatException e) {
+            String precoStr = JOptionPane.showInputDialog(null, "Digite o preço do produto: ");
+            preco = Double.parseDouble(precoStr);
+            HashMap<Object, Object> produto = new HashMap<>();
+            produto.put("Nome", nome);
+            produto.put("Preço", preco);
+            produto.put("Quantidade no estoque", 0);
+            produto.put("ID", (lista.size() + 1));
+            lista.add(produto);
+            JOptionPane.showMessageDialog(null, "Produto adicionado!");
+        }
+
+        catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Valor Inválido.");
         }
-        HashMap<String, String> produto = new HashMap<>();
-        produto.put("Nome do produto", nome);
-        produto.put("Preço do produto", precoStr);
-        produto.put("Estoque dos produtos", "0");
-        lista.add(produto);
     }
 
+
+    public static void listar(){
+        if(!vazio()){
+            for (int i = 0; i < lista.size(); i++) {
+                HashMap<Object, Object> item = lista.get(i);
+                JOptionPane.showMessageDialog(null,
+                        "ID: " + item.get("ID") + "\n" +
+                                "Nome: " + item.get("Nome") + "\n" +
+                                "Preço: R$" + item.get("Preço") + "\n" +
+                                "Quantidade no estoque: " + item.get("Quantidade no estoque"));
+            }
+        }
+    }
+
+
+    public static void buscar(){
+        if(!vazio()) {
+                boolean achou = false;
+                String busca = JOptionPane.showInputDialog(null, "Nome do produto: ");
+                for (HashMap<Object, Object> item : lista) {
+                    if (item.get("Nome").equals(busca)) {
+                        JOptionPane.showMessageDialog(null,
+                                "ID: " + item.get("ID") + "\n" +
+                                        "Nome: " + item.get("Nome") + "\n" +
+                                        "Preço: " + item.get("Preço") + "\n" +
+                                        "Quantidade no estoque: " + item.get("Quantidade no estoque"));
+                        achou = true;
+                    }
+                }
+                if (!achou) {
+                    JOptionPane.showMessageDialog(null, "Não há nenhum produto com esse nome.");
+                }
+        }
+    }
+
+
+    public static void sair(){
+        JOptionPane.showMessageDialog(null, "Programa finalizado.");
+    }
 
 
     public static void main(String[] args){
@@ -47,29 +97,27 @@ public class ProjetoLoja{
         do{
             Runnable[] funcoes = {
                     ProjetoLoja::adicionar,
+                    ProjetoLoja::listar,
+                    ProjetoLoja::buscar,
+                    ProjetoLoja::sair
             };
-            String[] opcoes = {"Adicionar"};
-            do{
-                try {
-                    String opcaoSTR = (String) JOptionPane.showInputDialog(null, "Escolha algo", "Cursos disponíveis", 1, null, opcoes, opcoes[0]);
-                    for (int i = 0; i < opcoes.length; i++) {
-                        if (opcaoSTR.equals(opcoes[i])){
-                            opcao = i + 1;
-                        }
+            String[] opcoes = {"Adicionar", "Listar", "Buscar", "Sair"};
+            try {
+                String opcaoSTR = (String) JOptionPane.showInputDialog(null, "Escolha algo", "Cursos disponíveis", 1, null, opcoes, opcoes[0]);
+                for (int i = 0; i < opcoes.length; i++) {
+                    if (opcaoSTR.equals(opcoes[i])) {
+                        opcao = i;
+                        funcoes[opcao].run();
+                        break;
                     }
                 }
-                catch (HeadlessException e) {
-                    JOptionPane.showMessageDialog(null, "teste");
+                if (opcaoSTR.equals("Sair")){
+                    opcao = 10;
                 }
-                catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(null, opcao);
-                    JOptionPane.showMessageDialog(null, "Você precisa digitar um número.");
-                    opcao = 0;
-                }
-            } while (opcao < 1 || opcao > 7);
-            if(opcao != 7) {
-                funcoes[opcao - 1].run();
             }
-        }while(opcao != 7);
+            catch (NullPointerException e){
+                opcao = 10;
+            }
+        }while(opcao != 10);
     }
 }
